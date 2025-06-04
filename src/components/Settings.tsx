@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from '../context/TranslationContext';
 import { requestNotificationPermission, checkPushNotificationSubscription, subscribeToPushNotifications, unsubscribeFromPushNotifications } from '../services/notificationService';
+import { getCacheSize } from '../services/cacheService';
 import './Settings.css';
 
 const Settings: React.FC = () => {
@@ -14,6 +15,23 @@ const Settings: React.FC = () => {
   } = useTranslation();
   
   const [notificationsSupported, setNotificationsSupported] = useState(false);
+  const [cacheInfo, setCacheInfo] = useState({ entries: 0, sizeInBytes: 0, sizeFormatted: '0 octets' });
+  const [cacheCleared, setCacheCleared] = useState(false);
+  
+  // Charger les informations sur le cache
+  useEffect(() => {
+    const updateCacheInfo = () => {
+      const info = getCacheSize('translationCache');
+      setCacheInfo(info);
+    };
+    
+    updateCacheInfo();
+    
+    // Mettre à jour les informations sur le cache toutes les 5 secondes si la page est active
+    const interval = setInterval(updateCacheInfo, 5000);
+    
+    return () => clearInterval(interval);
+  }, [cacheCleared]);
   
   // Vérifier si les notifications sont supportées et l'état de l'abonnement
   useEffect(() => {
@@ -120,9 +138,9 @@ const Settings: React.FC = () => {
         
         <div className="setting-item">
           <div className="setting-info">
-            <h3 className="setting-name">Effacer le cache</h3>
+            <h3 className="setting-name">Gestion du cache</h3>
             <p className="setting-description">
-              Supprimer toutes les traductions stockées localement
+              Traductions stockées localement: {cacheInfo.entries} entrées ({cacheInfo.sizeFormatted})
             </p>
           </div>
           
@@ -130,8 +148,10 @@ const Settings: React.FC = () => {
             className="clear-cache-button"
             onClick={() => {
               localStorage.removeItem('translationCache');
+              setCacheCleared(prev => !prev); // Inverser pour déclencher la mise à jour
               alert('Cache de traduction effacé avec succès');
             }}
+            disabled={cacheInfo.entries === 0}
           >
             Effacer
           </button>

@@ -1,15 +1,18 @@
 # SpeakFlow
 
-Application de traduction vocale en temps réel pour sapeurs-pompiers utilisant les APIs Google Cloud.
+Application de traduction vocale en temps réel pour sapeurs-pompiers utilisant les APIs Google Cloud. Développée avec React, TypeScript et Vite.
 
 ## Fonctionnalités
 
 - Traduction vocale en temps réel avec l'API Google Cloud Translation
 - Reconnaissance de texte dans les images avec l'API Google Cloud Vision
 - Détection automatique de langue
-- Mode hors ligne avec cache des traductions
+- Mode hors ligne avec cache des traductions optimisé (stratégie LRU)
 - Phrases d'urgence prédéfinies
 - Interface adaptée aux situations d'urgence avec mode haute visibilité
+- Navigation fluide entre les pages avec animations de transition
+- Interface responsive avec navigation adaptée aux mobiles
+- Notifications push pour les mises à jour importantes
 
 ## Configuration des APIs Google Cloud
 
@@ -70,4 +73,37 @@ npm run build
 4. Le texte extrait sera affiché et pourra être traduit
 
 ### Mode hors ligne
-L'application stocke les traductions précédentes dans un cache local pour permettre une utilisation limitée en mode hors ligne.
+L'application stocke les traductions précédentes dans un cache local optimisé pour permettre une utilisation limitée en mode hors ligne. Le système de cache utilise une stratégie LRU (Least Recently Used) et limite la taille des données stockées pour éviter les problèmes de quota de stockage.
+
+### Navigation
+L'application utilise React Router pour une navigation fluide entre les pages avec des animations de transition. Une barre de navigation inférieure est disponible sur les appareils mobiles pour faciliter l'accès aux fonctionnalités principales.
+
+### Gestion du cache
+Dans les paramètres de l'application, vous pouvez visualiser la taille du cache de traduction et le vider si nécessaire. Le système de cache est optimisé pour :
+- Limiter le nombre d'entrées (maximum 100)
+- Tronquer les textes trop longs
+- Supprimer automatiquement les entrées les plus anciennes
+- Expirer les entrées après 7 jours
+
+## Technologies et dépendances
+
+### Technologies principales
+- React 18 avec TypeScript
+- Vite comme bundler et serveur de développement
+- React Router pour la navigation
+- Web Speech API pour la reconnaissance et synthèse vocale
+- LocalStorage pour la persistance des données
+- Service Workers pour le mode hors ligne et les notifications push
+
+### Dépendances clés
+- `react-router-dom` : Gestion du routage et de la navigation
+- `framer-motion` : Animations de transition entre les pages
+- `axios` : Requêtes HTTP vers les APIs Google Cloud
+- `@google-cloud/translate` : Client pour l'API Google Cloud Translation
+- `@google-cloud/vision` : Client pour l'API Google Cloud Vision
+
+### Outils de développement
+- TypeScript pour le typage statique
+- ESLint pour la qualité du code
+- Prettier pour le formatage du code
+- Vitest pour les tests unitaires

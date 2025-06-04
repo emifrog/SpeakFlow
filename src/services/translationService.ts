@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { OptimizedCache, truncateText } from './cacheService';
 
 // URL de l'API de traduction (à remplacer par une vraie API)
 const API_URL = 'https://translation-api.com/translate';
@@ -16,8 +17,8 @@ interface TranslationResponse {
   detectedLanguage?: string;
 }
 
-// Cache local pour les traductions
-const translationCache = new Map<string, TranslationResponse>();
+// Cache optimisé pour les traductions
+const translationCache = new OptimizedCache<TranslationResponse>('translationCache');
 
 /**
  * Génère une clé de cache unique pour une requête de traduction
@@ -31,23 +32,17 @@ const getCacheKey = (params: TranslationParams): string => {
  */
 export const checkCache = (params: TranslationParams): TranslationResponse | null => {
   const cacheKey = getCacheKey(params);
-  return translationCache.has(cacheKey) ? translationCache.get(cacheKey) || null : null;
+  return translationCache.get(cacheKey);
 };
 
 /**
  * Ajoute une traduction au cache
  */
 export const addToCache = (params: TranslationParams, response: TranslationResponse): void => {
-  const cacheKey = getCacheKey(params);
-  translationCache.set(cacheKey, response);
-  
-  // Stocker également dans le localStorage pour la persistance
-  try {
-    const cacheData = JSON.parse(localStorage.getItem('translationCache') || '{}');
-    cacheData[cacheKey] = response;
-    localStorage.setItem('translationCache', JSON.stringify(cacheData));
-  } catch (error) {
-    console.error('Erreur lors de la mise en cache de la traduction:', error);
+  // Ne mettre en cache que si le texte n'est pas trop long
+  if (params.text.length <= 1000) {
+    const cacheKey = getCacheKey(params);
+    translationCache.set(cacheKey, response);
   }
 };
 
@@ -55,15 +50,8 @@ export const addToCache = (params: TranslationParams, response: TranslationRespo
  * Initialise le cache depuis le localStorage
  */
 export const initializeCache = (): void => {
-  try {
-    const cacheData = JSON.parse(localStorage.getItem('translationCache') || '{}');
-    Object.entries(cacheData).forEach(([key, value]) => {
-      translationCache.set(key, value as TranslationResponse);
-    });
-    console.log(`Cache de traduction initialisé avec ${translationCache.size} entrées`);
-  } catch (error) {
-    console.error('Erreur lors de l\'initialisation du cache de traduction:', error);
-  }
+  // Le cache est automatiquement initialisé par la classe OptimizedCache
+  console.log(`Cache de traduction initialisé avec ${translationCache.size} entrées`);
 };
 
 /**
@@ -79,9 +67,12 @@ export const translateText = async (
   if (!text.trim()) {
     return { translatedText: '' };
   }
+  
+  // Tronquer le texte s'il est trop long pour le cache
+  const truncatedText = truncateText(text, 1000);
 
   const params: TranslationParams = {
-    text,
+    text: truncatedText,
     sourceLanguage: useAutoDetect ? 'auto' : sourceLanguage,
     targetLanguage,
   };
