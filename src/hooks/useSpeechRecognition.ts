@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from '../context/TranslationContext';
 import { detectLanguage, translateText } from '../services/translationService';
 
@@ -108,7 +108,7 @@ export const useSpeechRecognition = (options: SpeechRecognitionOptions = {}): Us
     supportedLanguages
   } = useTranslation();
   
-  const [recognition, setRecognition] = useState<SpeechRecognitionType | null>(null);
+  const recognitionRef = useRef<SpeechRecognitionType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [hasRecognitionSupport, setHasRecognitionSupport] = useState<boolean>(false);
 
@@ -123,7 +123,7 @@ export const useSpeechRecognition = (options: SpeechRecognitionOptions = {}): Us
       recognitionInstance.interimResults = options.interimResults ?? true;
       recognitionInstance.lang = options.lang ?? sourceLanguage;
       
-      setRecognition(recognitionInstance);
+      recognitionRef.current = recognitionInstance;
     } else {
       setHasRecognitionSupport(false);
       setError("La reconnaissance vocale n'est pas supportée par votre navigateur");
@@ -131,16 +131,17 @@ export const useSpeechRecognition = (options: SpeechRecognitionOptions = {}): Us
     
     // Nettoyer lors du démontage
     return () => {
-      if (recognition) {
-        recognition.abort();
+      if (recognitionRef.current) {
+        recognitionRef.current.abort();
       }
     };
-  }, [options.continuous, options.interimResults, options.lang, recognition, sourceLanguage]);
+  }, [options.continuous, options.interimResults, options.lang, sourceLanguage]);
 
   // Gérer les résultats de la reconnaissance vocale
   useEffect(() => {
-    if (!recognition) return;
-
+    if (!recognitionRef.current) return;
+    
+    // Définir les gestionnaires d'événements
     const handleResult = async (event: SpeechRecognitionEvent) => {
       const result = event.results[event.resultIndex];
       if (result.isFinal) {
@@ -150,10 +151,9 @@ export const useSpeechRecognition = (options: SpeechRecognitionOptions = {}): Us
         // Si la détection automatique est activée, détecter la langue
         if (isAutoDetect) {
           try {
-            const detectedLangCode = await detectLanguage(transcript);
-            const detectedLang = supportedLanguages.find((lang) => lang.code === detectedLangCode);
-            if (detectedLang) {
-              setSourceLanguage(detectedLang.code);
+            const detectedLanguage = await detectLanguage(transcript);
+            if (detectedLanguage && supportedLanguages.some(lang => lang.code === detectedLanguage)) {
+              setSourceLanguage(detectedLanguage);
             }
           } catch (error) {
             console.error("Erreur lors de la détection de la langue:", error);
@@ -162,60 +162,68 @@ export const useSpeechRecognition = (options: SpeechRecognitionOptions = {}): Us
         
         // Traduire le texte
         try {
-          const translation = await translateText(
-            transcript,
-            sourceLanguage,
-            targetLanguage,
-            isAutoDetect
-          );
-          setTranslatedText(translation.translatedText);
+          const response = await translateText(transcript, sourceLanguage, targetLanguage);
+          const translatedText = response.translatedText;
+          setTranslatedText(translatedText);
         } catch (error) {
           console.error("Erreur lors de la traduction:", error);
-          setError("Erreur lors de la traduction");
         }
       }
     };
 
     const handleError = (event: Event) => {
-      setError("Erreur lors de la reconnaissance vocale");
+      const errorEvent = event as SpeechRecognitionErrorEvent;
+      console.error("Erreur de reconnaissance vocale:", errorEvent.error, errorEvent.message);
+      setError(`Erreur: ${errorEvent.error}`);
       setIsListening(false);
-      console.error("Erreur de reconnaissance vocale:", event);
     };
 
     const handleEnd = () => {
+      console.log("Session de reconnaissance vocale terminée");
       setIsListening(false);
     };
 
-    recognition.onresult = handleResult;
-    recognition.onerror = handleError;
-    recognition.onend = handleEnd;
-  }, [recognition, sourceLanguage, targetLanguage, isAutoDetect, setSourceText, setTranslatedText, setIsListening, setSourceLanguage, supportedLanguages]);
+    // Assigner les gestionnaires d'événements
+    recognitionRef.current.onresult = handleResult;
+    recognitionRef.current.onerror = handleError;
+    recognitionRef.current.onend = handleEnd;
+    
+    // Nettoyer les gestionnaires d'événements lors du démontage
+    return () => {
+      if (recognitionRef.current) {
+        // Utiliser des fonctions vides au lieu de null pour éviter les erreurs TypeScript
+        recognitionRef.current.onresult = (() => {}) as unknown as (event: SpeechRecognitionEvent) => void;
+        recognitionRef.current.onerror = (() => {}) as unknown as (event: Event) => void;
+        recognitionRef.current.onend = (() => {}) as unknown as (event: Event) => void;
+      }
+    };
+  }, [sourceLanguage, targetLanguage, isAutoDetect, setSourceText, setTranslatedText, setIsListening, setSourceLanguage, supportedLanguages]);
 
   // Démarrer l'écoute
   const startListening = useCallback(() => {
-    if (recognition) {
+    if (recognitionRef.current) {
       try {
-        recognition.lang = isAutoDetect ? 'auto' : sourceLanguage;
-        recognition.start();
+        recognitionRef.current.lang = isAutoDetect ? 'auto' : sourceLanguage;
+        recognitionRef.current.start();
         setIsListening(true);
         setError(null);
-      } catch (error) {
-        console.error("Erreur au démarrage de la reconnaissance vocale:", error);
-        setError("Impossible de démarrer la reconnaissance vocale");
+      } catch (err) {
+        console.error('Erreur lors du démarrage de la reconnaissance vocale:', err);
+        setError('Erreur lors du démarrage de la reconnaissance vocale');
       }
     }
-  }, [recognition, sourceLanguage, isAutoDetect, setIsListening]);
+  }, [sourceLanguage, isAutoDetect, setIsListening]);
 
   // Arrêter l'écoute
   const stopListening = useCallback(() => {
-    if (recognition) {
-      recognition.stop();
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
       setIsListening(false);
     }
-  }, [recognition, setIsListening]);
+  }, [setIsListening]);
 
   return {
-    isListening: Boolean(recognition) && recognition?.onend !== null,
+    isListening: Boolean(recognitionRef.current) && recognitionRef.current?.onend !== null,
     startListening,
     stopListening,
     hasRecognitionSupport,
