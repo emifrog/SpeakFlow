@@ -1,0 +1,103 @@
+/* Les styles de base sont maintenant dans index.css */
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--neutral-50);
+}
+
+.app-content {
+  flex: 1;
+  padding: var(--spacing-lg);
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.translate-section,
+.emergency-section,
+.settings-section,
+.media-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* Bannières d'information */
+.banner {
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  text-align: center;
+  font-weight: 500;
+  margin-bottom: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+}
+
+.offline-banner {
+  background-color: var(--error);
+  color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+.info-banner {
+  background-color: var(--info);
+  color: white;
+}
+
+.success-banner {
+  background-color: var(--success);
+  color: white;
+}
+
+.warning-banner {
+  background-color: var(--warning);
+  color: white;
+}
+
+.app-footer {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  text-align: center;
+  border-top: 1px solid #e1e4e8;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .app-content {
+    padding: 1rem;
+  }
+}
+
+/* High visibility mode */
+.high-visibility-mode {
+  background-color: #000;
+  color: #fff;
+}
+
+.high-visibility-mode .app-content {
+  background-color: #222;
+}
+
+.high-visibility-mode .app-footer {
+  background-color: #333;
+  color: #fff;
+  border-top-color: #444;
+}
