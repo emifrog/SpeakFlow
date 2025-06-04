@@ -1,5 +1,24 @@
 // Service pour la traduction de texte à partir de médias (images et documents)
 import type { Language } from '../types';
+import { googleCloudConfig, isGoogleCloudConfigured } from '../config/googleCloud';
+import axios from 'axios';
+import { translateText } from './googleTranslationService';
+
+// Types pour l'API Google Cloud Vision
+interface Vertex {
+  x: number;
+  y: number;
+}
+
+interface BoundingPoly {
+  vertices: Vertex[];
+}
+
+interface TextAnnotation {
+  description: string;
+  boundingPoly?: BoundingPoly;
+  confidence?: number;
+}
 
 // Interface pour les résultats de l'OCR
 export interface OCRResult {
@@ -23,7 +42,7 @@ export interface MediaTranslationResult {
 }
 
 /**
- * Extrait le texte d'une image à l'aide de l'OCR
+ * Extrait le texte d'une image à l'aide de l'OCR avec Google Cloud Vision API
  * @param imageFile Fichier image à analyser
  * @param sourceLanguage Langue source (optionnel, pour améliorer la précision)
  * @returns Promesse avec les résultats OCR
@@ -33,38 +52,91 @@ export const extractTextFromImage = async (
   sourceLanguage?: string
 ): Promise<OCRResult[]> => {
   try {
-    // Dans une implémentation réelle, nous utiliserions une API OCR comme Tesseract.js, Google Vision API, etc.
-    // Pour cette démonstration, nous simulons un résultat OCR
+    // Vérifier si l'application est hors ligne
+    if (navigator.onLine === false) {
+      throw new Error('La reconnaissance de texte n\'est pas disponible en mode hors ligne');
+    }
+
+    // Vérifier si la configuration Google Cloud est disponible
+    if (!isGoogleCloudConfigured()) {
+      throw new Error('La configuration Google Cloud n\'est pas disponible');
+    }
     
-    // Convertir l'image en base64 pour l'affichage
+    // Convertir l'image en base64
     const base64 = await fileToBase64(imageFile);
     
-    // Simuler un délai de traitement OCR
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Simuler un résultat OCR avec adaptation à la langue source si spécifiée
-    const languageSpecificText = sourceLanguage === 'en' 
-      ? "This is text extracted from the image" 
-      : "Ceci est un texte extrait de l'image";
-      
-    const mockResult: OCRResult[] = [
-      {
-        text: languageSpecificText,
-        confidence: 0.92,
-        boundingBox: {
-          x: 10,
-          y: 10,
-          width: 200,
-          height: 50
+    // Préparer la requête pour l'API Vision
+    const requestData = {
+      requests: [
+        {
+          image: {
+            content: base64.split(',')[1] // Enlever le préfixe "data:image/jpeg;base64,"
+          },
+          features: [
+            {
+              type: 'TEXT_DETECTION',
+              maxResults: 10
+            }
+          ],
+          imageContext: sourceLanguage ? {
+            languageHints: [sourceLanguage]
+          } : undefined
         }
+      ]
+    };
+
+    // Appel à l'API Google Cloud Vision
+    const response = await axios.post(
+      `${googleCloudConfig.vision.endpoint}/images:annotate`,
+      requestData,
+      {
+        params: {
+          key: googleCloudConfig.apiKey,
+        },
       }
-    ];
+    );
+
+    // Extraire les résultats de l'OCR
+    const result = response.data.responses[0];
+    
+    if (!result.textAnnotations || result.textAnnotations.length === 0) {
+      return [];
+    }
+
+    // Convertir les résultats au format attendu
+    const ocrResults: OCRResult[] = result.textAnnotations.map((annotation: TextAnnotation, index: number) => {
+      // Le premier résultat contient le texte complet, les autres sont des mots individuels
+      const confidence = annotation.confidence || (index === 0 ? 0.95 : 0.85);
+      
+      // Créer un boundingBox si disponible
+      let boundingBox;
+      if (annotation.boundingPoly && annotation.boundingPoly.vertices) {
+        const vertices = annotation.boundingPoly.vertices;
+        const minX = Math.min(...vertices.map((v: Vertex) => v.x || 0));
+        const minY = Math.min(...vertices.map((v: Vertex) => v.y || 0));
+        const maxX = Math.max(...vertices.map((v: Vertex) => v.x || 0));
+        const maxY = Math.max(...vertices.map((v: Vertex) => v.y || 0));
+        
+        boundingBox = {
+          x: minX,
+          y: minY,
+          width: maxX - minX,
+          height: maxY - minY
+        };
+      }
+      
+      return {
+        text: annotation.description,
+        confidence: confidence * 100, // Convertir en pourcentage
+        boundingBox
+      };
+    });
     
     // Stocker l'image et le résultat dans le stockage local pour la démo
     localStorage.setItem('lastProcessedImage', base64);
-    localStorage.setItem('lastOCRResult', JSON.stringify(mockResult));
+    localStorage.setItem('lastOCRResult', JSON.stringify(ocrResults));
     
-    return mockResult;
+    return ocrResults;
   } catch (error) {
     console.error('Erreur lors de l\'extraction de texte de l\'image:', error);
     throw error;
@@ -114,7 +186,7 @@ export const extractTextFromDocument = async (
 };
 
 /**
- * Traduit le texte extrait d'un média
+ * Traduit le texte extrait d'un média en utilisant l'API Google Cloud Translation
  * @param text Texte à traduire
  * @param sourceLanguage Code de la langue source
  * @param targetLanguage Code de la langue cible
@@ -126,41 +198,30 @@ export const translateMediaText = async (
   targetLanguage: Language['code']
 ): Promise<MediaTranslationResult> => {
   try {
-    // Dans une implémentation réelle, nous utiliserions une API de traduction
-    // Pour cette démonstration, nous simulons une traduction
-    
-    // Simuler un délai de traduction
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Simuler une traduction basique
-    let translatedText = '';
-    
-    if (sourceLanguage === 'fr' && targetLanguage === 'en') {
-      // Français vers Anglais
-      translatedText = text
-        .replace(/Ceci est/g, 'This is')
-        .replace(/texte extrait/g, 'text extracted')
-        .replace(/d'un document/g, 'from a document')
-        .replace(/d'une image/g, 'from an image')
-        .replace(/PDF/g, 'PDF')
-        .replace(/Word/g, 'Word');
-    } else if (sourceLanguage === 'en' && targetLanguage === 'fr') {
-      // Anglais vers Français
-      translatedText = text
-        .replace(/This is/g, 'Ceci est')
-        .replace(/text extracted/g, 'texte extrait')
-        .replace(/from a document/g, 'd\'un document')
-        .replace(/from an image/g, 'd\'une image');
-    } else {
-      // Pour les autres combinaisons de langues, on simule une traduction
-      translatedText = `[${targetLanguage}] ${text}`;
+    // Si le texte est vide, retourner un résultat vide
+    if (!text.trim()) {
+      return {
+        originalText: '',
+        translatedText: '',
+        sourceLanguage,
+        targetLanguage,
+        timestamp: Date.now()
+      };
     }
+
+    // Utiliser le service de traduction Google Cloud
+    const translationResult = await translateText(
+      text,
+      sourceLanguage,
+      targetLanguage,
+      sourceLanguage === 'auto' // Utiliser la détection automatique si sourceLanguage est 'auto'
+    );
     
     // Créer et retourner le résultat
     const result: MediaTranslationResult = {
       originalText: text,
-      translatedText,
-      sourceLanguage,
+      translatedText: translationResult.translatedText,
+      sourceLanguage: translationResult.detectedLanguage || sourceLanguage,
       targetLanguage,
       timestamp: Date.now()
     };

@@ -51,10 +51,9 @@ Ces fonctionnalités utilisent les technologies web modernes :
 ## Prochaines étapes et améliorations
 
 ### Améliorations techniques
-- Intégration d'une API OCR réelle pour remplacer la simulation actuelle (Google Vision API, Tesseract.js)
-- Développement d'un backend pour gérer les abonnements aux notifications push
-- Optimisation des performances pour les appareils à faible puissance
-- Tests unitaires et d'intégration pour les nouveaux composants
+- Intégration d'une API OCR réelle pour remplacer la simulation actuelle (Google API)
+- Développement d'un backend pour gérer les notifications push
+- Optimisation des performances
 
 ### Nouvelles fonctionnalités
 - Historique des traductions avec possibilité de marquer des favoris

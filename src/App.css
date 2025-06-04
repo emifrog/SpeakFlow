@@ -20,6 +20,7 @@
   width: 100%;
   margin: 0 auto;
   animation: fadeIn 0.5s ease-in-out;
+  padding-bottom: calc(var(--spacing-lg) + 70px); /* Espace pour la navigation inférieure */
 }
 
 @keyframes fadeIn {
@@ -77,6 +78,13 @@
   border-top: 1px solid #e1e4e8;
   font-size: 0.9rem;
   color: #6c757d;
+  margin-bottom: 70px; /* Espace pour la navigation inférieure sur mobile */
+}
+
+@media (min-width: 768px) {
+  .app-footer {
+    margin-bottom: 0; /* Pas besoin d'espace sur desktop */
+  }
 }
 
 /* Responsive adjustments */

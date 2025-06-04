@@ -1,9 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
+import { loadEnv } from 'vite'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // Charger les variables d'environnement
+  const env = loadEnv(mode, process.cwd(), '');
+  
+  return {
   plugins: [
     react(),
     VitePWA({
@@ -36,12 +41,26 @@ export default defineConfig({
       workbox: {
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/translation-api\.com/,
+            urlPattern: /^https:\/\/translation\.googleapis\.com/,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'api-cache',
+              cacheName: 'translation-api-cache',
               expiration: {
                 maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 7 // 1 semaine
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/vision\.googleapis\.com/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'vision-api-cache',
+              expiration: {
+                maxEntries: 50,
                 maxAgeSeconds: 60 * 60 * 24 * 7 // 1 semaine
               },
               cacheableResponse: {
@@ -53,4 +72,11 @@ export default defineConfig({
       }
     })
   ],
+  
+  // Définir les variables d'environnement pour le client
+  define: {
+    'process.env.GOOGLE_CLOUD_API_KEY': JSON.stringify(env.GOOGLE_CLOUD_API_KEY || ''),
+    'process.env.GOOGLE_CLOUD_PROJECT_ID': JSON.stringify(env.GOOGLE_CLOUD_PROJECT_ID || '')
+  }
+};
 })

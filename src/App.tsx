@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { TranslationProvider } from './context/TranslationContextProvider';
 import AppHeader from './components/AppHeader';
-import VoiceTranslator from './components/VoiceTranslator';
-import LanguageSelector from './components/LanguageSelector';
-import EmergencyPhrases from './components/EmergencyPhrases';
-import MediaTranslator from './components/MediaTranslator';
-import Settings from './components/Settings';
+import AppRoutes from './pages/Routes';
+import BottomNavigation from './components/BottomNavigation';
 import './App.css';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('translate');
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   // Surveiller l'état de la connexion
@@ -27,48 +24,29 @@ function App() {
   }, []);
 
   return (
-    <TranslationProvider>
-      <div className="app">
-        <AppHeader activeTab={activeTab} onTabChange={setActiveTab} />
-        
-        {!isOnline && (
-          <div className="offline-banner">
-            Mode hors ligne - Fonctionnalités limitées disponibles
-          </div>
-        )}
-        
-        <main className="app-content">
-          {activeTab === 'translate' && (
-            <div className="translate-section">
-              <LanguageSelector />
-              <VoiceTranslator />
+    <Router>
+      <TranslationProvider>
+        <div className="app">
+          <AppHeader />
+          
+          {!isOnline && (
+            <div className="offline-banner">
+              Mode hors ligne - Fonctionnalités limitées disponibles
             </div>
           )}
           
-          {activeTab === 'emergency' && (
-            <div className="emergency-section">
-              <EmergencyPhrases />
-            </div>
-          )}
-          
-          {activeTab === 'media' && (
-            <div className="media-section">
-              <MediaTranslator />
-            </div>
-          )}
-          
-          {activeTab === 'settings' && (
-            <div className="settings-section">
-              <Settings />
-            </div>
-          )}
-        </main>
+          <main className="app-content">
+            <AppRoutes />
+          </main>
         
-        <footer className="app-footer">
-          <p>SpeakFlow - Application de traduction vocale pour sapeurs-pompiers</p>
-        </footer>
-      </div>
-    </TranslationProvider>
+          <BottomNavigation />
+          
+          <footer className="app-footer">
+            <p>SpeakFlow - Application de traduction vocale pour sapeurs-pompiers</p>
+          </footer>
+        </div>
+      </TranslationProvider>
+    </Router>
   );
 }
 
