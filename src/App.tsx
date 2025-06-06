@@ -40,10 +40,7 @@ function App() {
           </main>
         
           <BottomNavigation />
-          
-          <footer className="app-footer">
-            <p>SpeakFlow - Application de traduction vocale pour sapeurs-pompiers</p>
-          </footer>
+
         </div>
       </TranslationProvider>
     </Router>

@@ -5,7 +5,7 @@
   border-bottom: 1px solid var(--neutral-200);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  background-color: rgba(255, 255, 255, 0.95);
+  background-color: white;
   box-shadow: var(--shadow-md);
   animation: slideInUp 0.5s ease-out;
 }
@@ -13,64 +13,44 @@
 .header-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: var(--spacing-md);
   max-width: 1200px;
   margin: 0 auto;
   height: 70px;
+  position: relative;
 }
 
 .logo {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  transition: all var(--transition-normal);
   position: relative;
   z-index: 1;
 }
 
-.logo:hover {
-  transform: scale(1.05);
-}
+/* Animation du logo supprimée */
 
 .logo::after {
-  content: '';
-  position: absolute;
-  top: -8px;
-  left: -8px;
-  right: -8px;
-  bottom: -8px;
-  background: linear-gradient(135deg, rgba(var(--primary-rgb), 0.1), rgba(var(--secondary-rgb), 0.1));
-  border-radius: var(--radius-lg);
-  opacity: 0;
-  z-index: -1;
-  transition: opacity var(--transition-normal);
+  /* Effet supprimé */
+  content: none;
 }
 
-.logo:hover::after {
-  opacity: 1;
-}
+/* Effet hover du logo supprimé */
 
 .logo-image {
-  width: 40px;
-  height: 40px;
+  width: 120px;
+  height: auto;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-  transition: transform var(--transition-normal);
 }
 
-.logo:hover .logo-image {
-  transform: rotate(5deg);
-}
+/* Animation de l'image du logo supprimée */
 
 .app-title {
   font-size: var(--font-size-2xl);
   font-weight: 700;
-  color: var(--primary);
+  color: white;
   margin: 0;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
   letter-spacing: -0.5px;
 }
 
@@ -81,7 +61,8 @@
   cursor: pointer;
   width: 32px;
   height: 32px;
-  position: relative;
+  position: absolute;
+  right: var(--spacing-md);
 }
 
 .menu-icon {
@@ -126,7 +107,8 @@
 }
 
 .main-nav {
-  flex: 1;
+  position: absolute;
+  right: var(--spacing-md);
   display: flex;
   justify-content: flex-end;
 }
@@ -149,7 +131,7 @@
   border-radius: var(--radius-md);
   font-size: var(--font-size-md);
   font-weight: 500;
-  color: var(--neutral-600);
+  color: var(--neutral-800);
   cursor: pointer;
   transition: all var(--transition-normal);
   position: relative;
@@ -170,7 +152,7 @@
 }
 
 .nav-button:hover {
-  color: var(--neutral-900);
+  color: var(--primary);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
@@ -194,7 +176,7 @@
   transform: translateX(-50%);
   width: 40%;
   height: 3px;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+  background: var(--secondary);
   border-radius: var(--radius-full) var(--radius-full) 0 0;
   animation: fadeIn 0.3s ease-out;
 }

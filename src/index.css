@@ -1,13 +1,13 @@
 :root {
   /* Palette de couleurs principale */
-  --primary: #3498db;
-  --primary-light: #5dade2;
-  --primary-dark: #2980b9;
-  --primary-rgb: 52, 152, 219;
-  --secondary: #2ecc71;
-  --secondary-light: #58d68d;
-  --secondary-dark: #27ae60;
-  --secondary-rgb: 46, 204, 113;
+  --primary: #144291;
+  --primary-light: #1d61d4;
+  --primary-dark: #11387b;
+  --primary-rgb: 20, 66, 145;
+  --secondary: #d20b12;
+  --secondary-light: #f4353c;
+  --secondary-dark: #ba0a10;
+  --secondary-rgb: 210, 11, 18;
   --accent: #f39c12;
   --accent-light: #f5b041;
   --accent-dark: #d68910;
@@ -26,10 +26,10 @@
   --neutral-900: #0f172a;
   
   /* Couleurs sémantiques */
-  --success: #2ecc71;
-  --success-light: #58d68d;
-  --success-dark: #27ae60;
-  --success-rgb: 46, 204, 113;
+  --success: #d20b12;
+  --success-light: #f4353c;
+  --success-dark: #ba0a10;
+  --success-rgb: 210, 11, 18;
   --warning: #f39c12;
   --warning-light: #f5b041;
   --warning-dark: #d68910;
@@ -38,10 +38,10 @@
   --error-light: #f8d7da;
   --error-dark: #721c24;
   --error-rgb: 231, 76, 60;
-  --info: #3498db;
+  --info: #144291;
   --info-light: #d1ecf1;
-  --info-dark: #0c5460;
-  --info-rgb: 52, 152, 219;
+  --info-dark: #11387b;
+  --info-rgb: 20, 66, 145;
   
   /* Typographie */
   --font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;

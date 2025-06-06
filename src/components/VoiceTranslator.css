@@ -9,6 +9,8 @@
   max-width: 900px;
   margin: 0 auto;
   animation: fadeIn 0.5s ease-in-out;
+  position: relative;
+  overflow: hidden;
 }
 
 .voice-translator.high-visibility {
@@ -22,6 +24,9 @@
   flex-direction: column;
   gap: var(--spacing-md);
   position: relative;
+  background-color: var(--neutral-50);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
 }
 
 @media (min-width: 768px) {
@@ -38,10 +43,11 @@
   gap: var(--spacing-sm);
   padding: var(--spacing-md);
   border-radius: var(--radius-md);
-  background-color: var(--neutral-50);
-  box-shadow: var(--shadow-md);
+  background-color: white;
+  box-shadow: var(--shadow-sm);
   transition: all var(--transition-normal);
   border: 1px solid var(--neutral-200);
+  margin-bottom: var(--spacing-md);
 }
 
 .source-container:hover,
@@ -66,7 +72,7 @@
   margin-bottom: var(--spacing-sm);
   padding: var(--spacing-xs) var(--spacing-sm);
   background-color: var(--neutral-100);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   display: inline-flex;
   box-shadow: var(--shadow-sm);
 }
@@ -83,17 +89,14 @@
 .language-name {
   font-size: var(--font-size-md);
   font-weight: 600;
-  background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  color: var(--primary);
 }
 
 .text-display {
   min-height: 120px;
   padding: var(--spacing-md);
   border-radius: var(--radius-md);
-  background-color: white;
+  background-color: var(--neutral-50);
   font-size: var(--font-size-md);
   line-height: 1.6;
   overflow-y: auto;
@@ -119,6 +122,9 @@
   gap: var(--spacing-md);
   margin-top: var(--spacing-md);
   flex-wrap: wrap;
+  background-color: var(--neutral-50);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-lg);
 }
 
 .listen-button,
@@ -137,10 +143,12 @@
   gap: var(--spacing-sm);
   box-shadow: var(--shadow-md);
   min-width: 150px;
+  position: relative;
+  overflow: hidden;
 }
 
 .listen-button {
-  background-color: var(--primary);
+  background-color: var(--secondary);
   color: white;
   position: relative;
   overflow: hidden;
@@ -167,7 +175,7 @@
 }
 
 .speak-button {
-  background-color: var(--success);
+  background-color: var(--primary);
   color: white;
   position: relative;
   overflow: hidden;

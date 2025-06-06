@@ -10,6 +10,7 @@
   animation: fadeIn 0.5s ease-in-out;
   position: relative;
   overflow: hidden;
+  border: 1px solid var(--neutral-200);
 }
 
 .language-selector::after {
@@ -31,7 +32,7 @@
   gap: var(--spacing-md);
   padding: var(--spacing-sm);
   background-color: var(--neutral-50);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-inner);
 }
 
@@ -48,7 +49,7 @@
   padding: var(--spacing-sm) var(--spacing-md);
   background-color: white;
   border: 1px solid var(--neutral-200);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   font-size: var(--font-size-md);
   cursor: pointer;
   width: 100%;
@@ -105,12 +106,12 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  background-color: var(--primary-light);
+  background-color: var(--secondary);
   border: none;
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: all var(--transition-normal);
-  color: var(--primary-dark);
+  color: white;
   box-shadow: var(--shadow-md);
   position: relative;
   overflow: hidden;
@@ -137,7 +138,7 @@
 }
 
 .swap-button:hover {
-  background-color: var(--primary);
+  background-color: var(--secondary-dark);
   color: white;
   transform: rotate(180deg);
 }
@@ -274,11 +275,10 @@
 .auto-detect-container {
   display: flex;
   align-items: center;
-  margin-top: var(--spacing-sm);
-  padding: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
   background-color: var(--neutral-50);
-  border-radius: var(--radius-md);
-  border-left: 3px solid var(--primary-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-inner);
 }
 
 .auto-detect-label {

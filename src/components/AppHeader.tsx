@@ -16,7 +16,7 @@ const AppHeader: React.FC = () => {
     <header className="app-header">
       <div className="header-content">
         <div className="logo">
-          <img src="/src/assets/images/logo.png" alt="SpeakFlow Logo" className="logo-image" />
+          <img src="/src/assets/images/logo2-remove.png" alt="SpeakFlow Logo" className="logo-image" />
         </div>
 
         <button 
